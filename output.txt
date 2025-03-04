@@ -1,5 +1,5 @@
 Graph Summary:
-Number of nodes: 4
+Number of nodes: 10
 Number of edges: 5
 
 Nodes:
@@ -7,6 +7,12 @@ Nodes:
   B [label=Node B]
   C [label=Node C]
   D [label=Node D]
+  NewNode1 [label=NewNode1]
+  NewNode2 [label=NewNode2]
+  NewNode3 [label=NewNode3]
+  NewNode4 [label=NewNode4]
+  NewNode5 [label=NewNode5]
+  NewNode6 [label=NewNode6]
 
 Edges:
   A -> B

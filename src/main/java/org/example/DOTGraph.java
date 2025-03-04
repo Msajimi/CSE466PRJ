@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A class to parse and represent DOT format graphs
@@ -71,6 +72,52 @@ public class DOTGraph {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * Add a node to the graph with the specified label
+     *
+     * @param label the label for the new node
+     * @return true if the node was added, false if a node with this label already exists
+     */
+    public boolean addNode(String label) {
+        // Check if a node with this label already exists
+        if (graph.containsVertex(label)) {
+            System.out.println("Warning: Node with label '" + label + "' already exists.");
+            return false;
+        }
+
+        // Add the node to the graph
+        graph.addVertex(label);
+
+        // Add an entry for vertex attributes
+        if (!vertexAttributes.containsKey(label)) {
+            vertexAttributes.put(label, new HashMap<>());
+        }
+
+        // Set the label attribute
+        vertexAttributes.get(label).put("label", "\"" + label + "\"");
+
+        System.out.println("Added node: " + label);
+        return true;
+    }
+
+    /**
+     * Add multiple nodes to the graph
+     *
+     * @param labels array of labels for new nodes
+     * @return the number of nodes successfully added
+     */
+    public int addNodes(String[] labels) {
+        int addedCount = 0;
+
+        for (String label : labels) {
+            if (addNode(label)) {
+                addedCount++;
+            }
+        }
+
+        return addedCount;
     }
 
     /**
