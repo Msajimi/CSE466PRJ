@@ -1,0 +1,10 @@
+Graph Summary:
+Number of nodes: 3
+Number of edges: 0
+
+Nodes:
+  MultiNode1 [label=MultiNode1]
+  MultiNode2 [label=MultiNode2]
+  MultiNode3 [label=MultiNode3]
+
+Edges:

@@ -1,0 +1,8 @@
+Graph Summary:
+Number of nodes: 1
+Number of edges: 0
+
+Nodes:
+  Node1 [label=Node1]
+
+Edges:

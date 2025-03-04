@@ -1,0 +1,11 @@
+Graph Summary:
+Number of nodes: 4
+Number of edges: 0
+
+Nodes:
+  ExistingNode1 [label=ExistingNode1]
+  ExistingNode2 [label=ExistingNode2]
+  NewNode1 [label=NewNode1]
+  NewNode2 [label=NewNode2]
+
+Edges:
