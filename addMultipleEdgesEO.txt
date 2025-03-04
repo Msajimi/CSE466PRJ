@@ -1,0 +1,12 @@
+Graph Summary:
+Number of nodes: 3
+Number of edges: 2
+
+Nodes:
+  Node1 [label=Node1]
+  Node2 [label=Node2]
+  Node3 [label=Node3]
+
+Edges:
+  Node1 -> Node2
+  Node2 -> Node3

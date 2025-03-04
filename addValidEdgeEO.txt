@@ -1,0 +1,10 @@
+Graph Summary:
+Number of nodes: 2
+Number of edges: 1
+
+Nodes:
+  SourceNode [label=SourceNode]
+  DestNode [label=DestNode]
+
+Edges:
+  SourceNode -> DestNode
