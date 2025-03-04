@@ -1,0 +1,7 @@
+digraph VisualGraph {
+    X [label="Start"];
+    Y [label="Process"];
+    Z [label="End"];
+    X -> Y;
+    Y -> Z;
+}

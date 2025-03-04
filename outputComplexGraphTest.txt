@@ -1,0 +1,10 @@
+addNode: Start
+addNode: Process1
+addNode: Decision
+addNode: Process2
+addNode: End
+addEdge: Start -> Process1
+addEdge: Process1 -> Decision
+addEdge: Decision -> Process2
+addEdge: Decision -> End
+addEdge: Process2 -> End

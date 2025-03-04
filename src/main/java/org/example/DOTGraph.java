@@ -3,19 +3,31 @@ package org.example;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.nio.dot.DOTExporter;
 import org.jgrapht.nio.dot.DOTImporter;
 import org.jgrapht.nio.ImportException;
 import org.jgrapht.nio.Attribute;
+import org.jgrapht.nio.DefaultAttribute;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
+import javax.imageio.ImageIO;
+
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.layout.mxIGraphLayout;
+import com.mxgraph.util.mxCellRenderer;
+import org.jgrapht.ext.JGraphXAdapter;
 
 /**
  * A class to parse and represent DOT format graphs
@@ -181,6 +193,93 @@ public class DOTGraph {
             return true;
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Output the graph in DOT format to a file
+     *
+     * @param path the path where to save the DOT file
+     * @return true if successful, false otherwise
+     */
+    public boolean outputDOTGraph(String path) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            DOTExporter<String, DefaultEdge> exporter = new DOTExporter<>();
+
+            // Set vertex ID provider
+            exporter.setVertexIdProvider(v -> v);
+
+            // Set vertex attribute provider to include labels and other attributes
+            exporter.setVertexAttributeProvider(v -> {
+                Map<String, Attribute> attributes = new HashMap<>();
+
+                // Add all stored attributes for this vertex
+                if (vertexAttributes.containsKey(v)) {
+                    for (Map.Entry<String, String> entry : vertexAttributes.get(v).entrySet()) {
+                        attributes.put(entry.getKey(), DefaultAttribute.createAttribute(entry.getValue()));
+                    }
+                }
+
+                // Ensure there's at least a label attribute
+                if (!attributes.containsKey("label")) {
+                    attributes.put("label", DefaultAttribute.createAttribute("\"" + v + "\""));
+                }
+
+                return attributes;
+            });
+
+            // Export to a StringWriter first to ensure proper formatting
+            StringWriter stringWriter = new StringWriter();
+            exporter.exportGraph(graph, stringWriter);
+
+            // Write the DOT content to the file
+            writer.write(stringWriter.toString());
+
+            System.out.println("DOT graph exported successfully to: " + path);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error exporting DOT graph: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Output the graph as a graphics file
+     *
+     * @param path the path where to save the graphics file
+     * @param format the format of the graphics file (e.g., "png")
+     * @return true if successful, false otherwise
+     */
+    public boolean outputGraphics(String path, String format) {
+        // Check if format is supported
+        if (!format.equalsIgnoreCase("png")) {
+            System.err.println("Unsupported format: " + format + ". Only 'png' is supported.");
+            return false;
+        }
+
+        try {
+            // Create a JGraphXAdapter for visualization
+            JGraphXAdapter<String, DefaultEdge> graphAdapter = new JGraphXAdapter<>(graph);
+
+            // Create a layout to organize the graph visually
+            mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
+            layout.execute(graphAdapter.getDefaultParent());
+
+            // Create a buffered image to render the graph
+            BufferedImage image = mxCellRenderer.createBufferedImage(
+                    graphAdapter, null, 2, Color.WHITE, true, null);
+
+            // Save the image
+            File imgFile = new File(path);
+            ImageIO.write(image, format, imgFile);
+
+            System.out.println("Graph image exported successfully to: " + path);
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error exporting graph image: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }

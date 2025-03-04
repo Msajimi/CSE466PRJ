@@ -1,0 +1,1 @@
+Graph image exported successfully to: outputGraphicsTest_output.png

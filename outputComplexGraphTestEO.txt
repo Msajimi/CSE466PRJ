@@ -1,0 +1,12 @@
+digraph G {
+  Start
+  Process1
+  Decision
+  Process2
+  End
+  Start -> Process1
+  Process1 -> Decision
+  Decision -> Process2
+  Decision -> End
+  Process2 -> End
+}
