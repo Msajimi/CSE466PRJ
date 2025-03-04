@@ -1,0 +1,13 @@
+digraph ComplexGraph {
+    start [label="Start", shape=diamond];
+    process1 [label="Process 1", shape=box];
+    decision [label="Decision?", shape=diamond];
+    process2 [label="Process 2", shape=box];
+    end [label="End", shape=circle];
+
+    start -> process1;
+    process1 -> decision;
+    decision -> process2 [label="Yes"];
+    decision -> end [label="No"];
+    process2 -> end;
+}

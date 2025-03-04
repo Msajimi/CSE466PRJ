@@ -1,0 +1,17 @@
+Graph Summary:
+Number of nodes: 5
+Number of edges: 5
+
+Nodes:
+  start [label=Start]
+  process1 [label=Process 1]
+  decision [label=Decision?]
+  process2 [label=Process 2]
+  end [label=End]
+
+Edges:
+  start -> process1
+  process1 -> decision
+  decision -> process2
+  decision -> end
+  process2 -> end

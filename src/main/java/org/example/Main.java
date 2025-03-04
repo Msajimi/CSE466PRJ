@@ -51,6 +51,29 @@ public class Main {
             nodesAdded = dotGraph.addNodes(mixedNodes);
             System.out.println("Successfully added " + nodesAdded + " nodes out of " + mixedNodes.length);
 
+            // Test Feature 3: Adding edges
+            System.out.println("\n==== Testing Feature 3: Adding Edges ====");
+
+            // Test adding an edge between existing nodes
+            System.out.println("\nAdding edge between existing nodes:");
+            dotGraph.addEdge("NewNode1", "NewNode2");
+
+            // Test adding another edge
+            System.out.println("\nAdding another edge:");
+            dotGraph.addEdge("NewNode2", "NewNode3");
+
+            // Test adding a duplicate edge (should fail)
+            System.out.println("\nAttempting to add a duplicate edge:");
+            dotGraph.addEdge("NewNode1", "NewNode2");
+
+            // Test adding an edge with non-existent source node
+            System.out.println("\nAttempting to add an edge with non-existent source:");
+            dotGraph.addEdge("NonExistentNode", "NewNode3");
+
+            // Test adding an edge with non-existent destination node
+            System.out.println("\nAttempting to add an edge with non-existent destination:");
+            dotGraph.addEdge("NewNode1", "NonExistentNode");
+
             // Print updated graph information
             System.out.println("\nUpdated graph information:");
             System.out.println(dotGraph);

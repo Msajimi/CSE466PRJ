@@ -121,6 +121,37 @@ public class DOTGraph {
     }
 
     /**
+     * Add an edge between two nodes in the graph
+     *
+     * @param srcLabel the source node label
+     * @param dstLabel the destination node label
+     * @return true if the edge was added, false if it already exists or nodes don't exist
+     */
+    public boolean addEdge(String srcLabel, String dstLabel) {
+        // Check if both nodes exist
+        if (!graph.containsVertex(srcLabel)) {
+            System.out.println("Error: Source node '" + srcLabel + "' does not exist. Add it first.");
+            return false;
+        }
+
+        if (!graph.containsVertex(dstLabel)) {
+            System.out.println("Error: Destination node '" + dstLabel + "' does not exist. Add it first.");
+            return false;
+        }
+
+        // Check if the edge already exists
+        if (graph.containsEdge(srcLabel, dstLabel)) {
+            System.out.println("Warning: Edge from '" + srcLabel + "' to '" + dstLabel + "' already exists.");
+            return false;
+        }
+
+        // Add the edge
+        graph.addEdge(srcLabel, dstLabel);
+        System.out.println("Added edge: " + srcLabel + " -> " + dstLabel);
+        return true;
+    }
+
+    /**
      * Get the number of vertices in the graph
      *
      * @return the vertex count
