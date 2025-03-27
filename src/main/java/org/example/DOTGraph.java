@@ -408,5 +408,76 @@ public class DOTGraph {
         return true;
     }
 
+    /**
+     * Finds a path from source node to destination node using DFS algorithm
+     *
+     * @param src the source node label
+     * @param dst the destination node label
+     * @return a Path object representing the path if found, null otherwise
+     * @throws IllegalArgumentException if either node doesn't exist
+     */
+    public Path graphSearch(String src, String dst) {
+        // Check if both nodes exist
+        if (!graph.containsVertex(src)) {
+            throw new IllegalArgumentException("Error: Source node '" + src + "' does not exist.");
+        }
+
+        if (!graph.containsVertex(dst)) {
+            throw new IllegalArgumentException("Error: Destination node '" + dst + "' does not exist.");
+        }
+
+        // If source and destination are the same, return a path with just this node
+        if (src.equals(dst)) {
+            return new Path(src);
+        }
+
+        // Set to keep track of visited nodes during DFS
+        java.util.Set<String> visited = new java.util.HashSet<>();
+
+        // Call the recursive DFS helper function
+        return dfsHelper(src, dst, visited, new Path(src));
+    }
+
+    /**
+     * Helper method for DFS traversal
+     *
+     * @param current current node being examined
+     * @param dst destination node we're looking for
+     * @param visited set of nodes already visited
+     * @param currentPath the path taken so far
+     * @return path to destination if found, null otherwise
+     */
+    private Path dfsHelper(String current, String dst, java.util.Set<String> visited, Path currentPath) {
+        // Mark the current node as visited
+        visited.add(current);
+
+        // If we've reached the destination, return the current path
+        if (current.equals(dst)) {
+            return currentPath;
+        }
+
+        // Explore all neighbors (outgoing edges from current node)
+        for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
+            String neighbor = graph.getEdgeTarget(edge);
+
+            // If we haven't visited this neighbor yet
+            if (!visited.contains(neighbor)) {
+                // Create a new path by adding this neighbor
+                Path newPath = new Path(currentPath);
+                newPath.addNode(neighbor);
+
+                // Recursively search from this neighbor
+                Path result = dfsHelper(neighbor, dst, visited, newPath);
+
+                // If a path is found, return it immediately
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        // If we get here, no path was found from the current node
+        return null;
+    }
 }
 
