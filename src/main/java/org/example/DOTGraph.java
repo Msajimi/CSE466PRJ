@@ -408,5 +408,97 @@ public class DOTGraph {
         return true;
     }
 
+    /**
+     * Finds a path from source node to destination node using BFS algorithm
+     *
+     * @param src the source node label
+     * @param dst the destination node label
+     * @return a Path object representing the path if found, null otherwise
+     * @throws IllegalArgumentException if either node doesn't exist
+     */
+    public Path graphSearch(String src, String dst) {
+        // Check if both nodes exist
+        if (!graph.containsVertex(src)) {
+            throw new IllegalArgumentException("Error: Source node '" + src + "' does not exist.");
+        }
+
+        if (!graph.containsVertex(dst)) {
+            throw new IllegalArgumentException("Error: Destination node '" + dst + "' does not exist.");
+        }
+
+        // If source and destination are the same, return a path with just this node
+        if (src.equals(dst)) {
+            return new Path(src);
+        }
+
+        // Queue for BFS traversal
+        java.util.Queue<String> queue = new java.util.LinkedList<>();
+
+        // Keep track of visited nodes
+        java.util.Set<String> visited = new java.util.HashSet<>();
+
+        // Keep track of parent nodes to reconstruct the path
+        java.util.Map<String, String> parentMap = new java.util.HashMap<>();
+
+        // Start BFS from the source node
+        queue.add(src);
+        visited.add(src);
+
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+
+            // Get all neighbors (outgoing edges from current node)
+            for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
+                String neighbor = graph.getEdgeTarget(edge);
+
+                // If we haven't visited this neighbor yet
+                if (!visited.contains(neighbor)) {
+                    // Record the parent
+                    parentMap.put(neighbor, current);
+
+                    // Check if we've reached the destination
+                    if (neighbor.equals(dst)) {
+                        // Reconstruct the path
+                        return reconstructPath(parentMap, src, dst);
+                    }
+
+                    // Add to queue and mark as visited
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        // If we get here, no path was found
+        return null;
+    }
+
+    /**
+     * Helper method to reconstruct the path from the parent map
+     *
+     * @param parentMap a map of child -> parent relationships
+     * @param src the source node
+     * @param dst the destination node
+     * @return a Path object representing the path
+     */
+    private Path reconstructPath(java.util.Map<String, String> parentMap, String src, String dst) {
+        // Create a list to store the path in reverse order
+        java.util.List<String> pathNodes = new java.util.ArrayList<>();
+
+        // Start from the destination
+        String current = dst;
+
+        // Work backwards to the source
+        while (current != null) {
+            pathNodes.add(current);
+            current = parentMap.get(current);
+        }
+
+        // Reverse the path to get the correct order
+        java.util.Collections.reverse(pathNodes);
+
+        // Create and return the path
+        return new Path(pathNodes);
+    }
 }
 
