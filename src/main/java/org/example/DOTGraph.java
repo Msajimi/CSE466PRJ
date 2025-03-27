@@ -336,4 +336,77 @@ public class DOTGraph {
     public Graph<String, DefaultEdge> getGraph() {
         return graph;
     }
+
+    /**
+     * Remove a node from the graph
+     *
+     * @param label the label of the node to remove
+     * @return true if the node was removed
+     * @throws IllegalArgumentException if the node doesn't exist
+     */
+    public boolean removeNode(String label) {
+        // Check if the node exists
+        if (!graph.containsVertex(label)) {
+            throw new IllegalArgumentException("Error: Node '" + label + "' does not exist.");
+        }
+
+        // Remove the node from the graph (this will also remove all edges connected to it)
+        graph.removeVertex(label);
+
+        // Remove the node's attributes
+        vertexAttributes.remove(label);
+
+        System.out.println("Removed node: " + label);
+        return true;
+    }
+
+    /**
+     * Remove multiple nodes from the graph
+     *
+     * @param labels array of labels for nodes to remove
+     * @return the number of nodes successfully removed
+     * @throws IllegalArgumentException if any node doesn't exist
+     */
+    public int removeNodes(String[] labels) {
+        int removedCount = 0;
+
+        for (String label : labels) {
+            if (removeNode(label)) {
+                removedCount++;
+            }
+        }
+
+        return removedCount;
+    }
+
+    /**
+     * Remove an edge between two nodes in the graph
+     *
+     * @param srcLabel the source node label
+     * @param dstLabel the destination node label
+     * @return true if the edge was removed
+     * @throws IllegalArgumentException if either node doesn't exist or the edge doesn't exist
+     */
+    public boolean removeEdge(String srcLabel, String dstLabel) {
+        // Check if both nodes exist
+        if (!graph.containsVertex(srcLabel)) {
+            throw new IllegalArgumentException("Error: Source node '" + srcLabel + "' does not exist.");
+        }
+
+        if (!graph.containsVertex(dstLabel)) {
+            throw new IllegalArgumentException("Error: Destination node '" + dstLabel + "' does not exist.");
+        }
+
+        // Check if the edge exists
+        if (!graph.containsEdge(srcLabel, dstLabel)) {
+            throw new IllegalArgumentException("Error: Edge from '" + srcLabel + "' to '" + dstLabel + "' does not exist.");
+        }
+
+        // Remove the edge
+        graph.removeEdge(srcLabel, dstLabel);
+        System.out.println("Removed edge: " + srcLabel + " -> " + dstLabel);
+        return true;
+    }
+
 }
+

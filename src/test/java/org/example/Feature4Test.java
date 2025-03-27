@@ -60,7 +60,6 @@ public class Feature4Test {
             assertEquals(expectedContent, outputContent, "Output DOT file should match expected output");
         } finally {
             // Clean up - delete the output file
-            outputFile.delete();
         }
     }
 
@@ -196,7 +195,6 @@ public class Feature4Test {
             }
         } finally {
             // Clean up - delete output files
-            new File(outputDotPath).delete();
         }
     }
 }
