@@ -1,0 +1,8 @@
+strict digraph G {
+  A [ ID="A" label="Node A" ];
+  B [ ID="B" label="Node B" ];
+  C [ ID="C" label="Node C" ];
+  A -> B;
+  B -> C;
+  C -> A;
+}

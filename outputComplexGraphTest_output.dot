@@ -1,0 +1,12 @@
+strict digraph G {
+  Start [ label="\"Start\"" ];
+  Process1 [ label="\"Process1\"" ];
+  Decision [ label="\"Decision\"" ];
+  Process2 [ label="\"Process2\"" ];
+  End [ label="\"End\"" ];
+  Start -> Process1;
+  Process1 -> Decision;
+  Decision -> Process2;
+  Decision -> End;
+  Process2 -> End;
+}
