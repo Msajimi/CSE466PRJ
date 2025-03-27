@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the GraphSearch functionality in DOTGraph
  */
-public class BFSTest {
+public class GraphSearchTest {
 
     private DOTGraph graph;
 
@@ -38,33 +38,54 @@ public class BFSTest {
     }
 
     /**
-     * Test finding a direct path between adjacent nodes
+     * Test BFS direct path between adjacent nodes
      */
     @Test
-    public void testDirectPath() {
-        Path path = graph.graphSearch("A", "B");
+    public void testBFSDirectPath() {
+        Path path = graph.graphSearch("A", "B", Algorithm.BFS);
         assertNotNull(path);
         assertEquals(2, path.length());
         assertEquals("A -> B", path.toString());
     }
 
     /**
-     * Test finding a path requiring multiple steps
+     * Test DFS direct path between adjacent nodes
      */
     @Test
-    public void testMultiStepPath() {
-        Path path = graph.graphSearch("A", "F");
+    public void testDFSDirectPath() {
+        Path path = graph.graphSearch("A", "B", Algorithm.DFS);
+        assertNotNull(path);
+        assertEquals(2, path.length());
+        assertEquals("A -> B", path.toString());
+    }
+
+    /**
+     * Test BFS multi-step path (should find shortest)
+     */
+    @Test
+    public void testBFSMultiStepPath() {
+        Path path = graph.graphSearch("A", "F", Algorithm.BFS);
         assertNotNull(path);
 
-        // BFS should find the shortest path, which is A -> D -> E -> F
-        // (with 4 nodes) rather than A -> B -> C -> F (with 4 nodes)
-        // Since both paths have the same length, either is acceptable.
-        // The exact path depends on the order of edge traversal in the BFS.
-        assertEquals(4, path.length());
-
-        // The path should either be A -> D -> E -> F or A -> B -> C -> F
+        // For this graph, either path has the same length
+        // but BFS will prefer breadth-first ordering
         String pathStr = path.toString();
         assertTrue(pathStr.equals("A -> D -> E -> F") || pathStr.equals("A -> B -> C -> F"));
+        assertEquals(4, path.length());
+    }
+
+    /**
+     * Test DFS multi-step path
+     */
+    @Test
+    public void testDFSMultiStepPath() {
+        Path path = graph.graphSearch("A", "F", Algorithm.DFS);
+        assertNotNull(path);
+
+        // DFS will find a path, but it depends on the traversal order
+        String pathStr = path.toString();
+        assertTrue(pathStr.equals("A -> B -> C -> F") || pathStr.equals("A -> D -> E -> F"));
+        assertEquals(4, path.length());
     }
 
     /**
@@ -72,10 +93,16 @@ public class BFSTest {
      */
     @Test
     public void testSameNodePath() {
-        Path path = graph.graphSearch("A", "A");
-        assertNotNull(path);
-        assertEquals(1, path.length());
-        assertEquals("A", path.toString());
+        // Test with both algorithms
+        Path bfsPath = graph.graphSearch("A", "A", Algorithm.BFS);
+        Path dfsPath = graph.graphSearch("A", "A", Algorithm.DFS);
+
+        assertNotNull(bfsPath);
+        assertNotNull(dfsPath);
+        assertEquals(1, bfsPath.length());
+        assertEquals(1, dfsPath.length());
+        assertEquals("A", bfsPath.toString());
+        assertEquals("A", dfsPath.toString());
     }
 
     /**
@@ -86,8 +113,11 @@ public class BFSTest {
         // Add an unreachable node
         graph.addNode("Z");
 
-        Path path = graph.graphSearch("A", "Z");
-        assertNull(path);
+        Path bfsPath = graph.graphSearch("A", "Z", Algorithm.BFS);
+        Path dfsPath = graph.graphSearch("A", "Z", Algorithm.DFS);
+
+        assertNull(bfsPath);
+        assertNull(dfsPath);
     }
 
     /**
@@ -95,13 +125,14 @@ public class BFSTest {
      */
     @Test
     public void testNonExistentNodes() {
+        // Test for both algorithms
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            graph.graphSearch("X", "A");
+            graph.graphSearch("X", "A", Algorithm.BFS);
         });
         assertTrue(exception.getMessage().contains("does not exist"));
 
         exception = assertThrows(IllegalArgumentException.class, () -> {
-            graph.graphSearch("A", "X");
+            graph.graphSearch("A", "X", Algorithm.DFS);
         });
         assertTrue(exception.getMessage().contains("does not exist"));
     }
