@@ -409,14 +409,6 @@ public class DOTGraph {
     }
 
     /**
-     * Finds a path from source node to destination node using BFS algorithm
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     * @throws IllegalArgumentException if either node doesn't exist
-     */
-    /**
      * Finds a path from source node to destination node using the specified algorithm
      *
      * @param src   the source node label
@@ -440,150 +432,10 @@ public class DOTGraph {
             return new Path(src);
         }
 
-        // Choose the appropriate algorithm
-        switch (algo) {
-            case BFS:
-                return bfsSearch(src, dst);
-            case DFS:
-                return dfsSearch(src, dst);
-            default:
-                throw new IllegalArgumentException("Invalid algorithm specified");
-        }
-    }
+        // Create the appropriate algorithm using the factory
+        GraphSearchAlgorithm algorithm = SearchAlgorithmFactory.createAlgorithm(graph, algo);
 
-    /**
-     * Performs a breadth-first search from source to destination
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     */
-    private Path bfsSearch(String src, String dst) {
-        // Queue for BFS traversal
-        java.util.Queue<String> queue = new java.util.LinkedList<>();
-
-        // Keep track of visited nodes
-        java.util.Set<String> visited = new java.util.HashSet<>();
-
-        // Keep track of parent nodes to reconstruct the path
-        java.util.Map<String, String> parentMap = new java.util.HashMap<>();
-
-        // Start BFS from the source node
-        queue.add(src);
-        visited.add(src);
-
-        while (!queue.isEmpty()) {
-            String current = queue.poll();
-
-            // Get all neighbors (outgoing edges from current node)
-            for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
-                String neighbor = graph.getEdgeTarget(edge);
-
-                // If we haven't visited this neighbor yet
-                if (!visited.contains(neighbor)) {
-                    // Record the parent
-                    parentMap.put(neighbor, current);
-
-                    // Check if we've reached the destination
-                    if (neighbor.equals(dst)) {
-                        // Reconstruct the path
-                        return reconstructPath(parentMap, src, dst);
-                    }
-
-                    // Add to queue and mark as visited
-                    visited.add(neighbor);
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        // If we get here, no path was found
-        return null;
-    }
-
-    /**
-     * Performs a depth-first search from source to destination
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     */
-    private Path dfsSearch(String src, String dst) {
-        // Set to keep track of visited nodes during DFS
-        java.util.Set<String> visited = new java.util.HashSet<>();
-
-        // Call the recursive DFS helper function
-        return dfsHelper(src, dst, visited, new Path(src));
-    }
-
-    /**
-     * Helper method for DFS traversal
-     *
-     * @param current current node being examined
-     * @param dst destination node we're looking for
-     * @param visited set of nodes already visited
-     * @param currentPath the path taken so far
-     * @return path to destination if found, null otherwise
-     */
-    private Path dfsHelper(String current, String dst, java.util.Set<String> visited, Path currentPath) {
-        // Mark the current node as visited
-        visited.add(current);
-
-        // If we've reached the destination, return the current path
-        if (current.equals(dst)) {
-            return currentPath;
-        }
-
-        // Explore all neighbors (outgoing edges from current node)
-        for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
-            String neighbor = graph.getEdgeTarget(edge);
-
-            // If we haven't visited this neighbor yet
-            if (!visited.contains(neighbor)) {
-                // Create a new path by adding this neighbor
-                Path newPath = new Path(currentPath);
-                newPath.addNode(neighbor);
-
-                // Recursively search from this neighbor
-                Path result = dfsHelper(neighbor, dst, visited, newPath);
-
-                // If a path is found, return it immediately
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-
-        // If we get here, no path was found from the current node
-        return null;
-    }
-
-    /**
-     * Helper method to reconstruct the path from the parent map
-     *
-     * @param parentMap a map of child -> parent relationships
-     * @param src the source node
-     * @param dst the destination node
-     * @return a Path object representing the path
-     */
-    private Path reconstructPath(java.util.Map<String, String> parentMap, String src, String dst) {
-        // Create a list to store the path in reverse order
-        java.util.List<String> pathNodes = new java.util.ArrayList<>();
-
-        // Start from the destination
-        String current = dst;
-
-        // Work backwards to the source
-        while (current != null) {
-            pathNodes.add(current);
-            current = parentMap.get(current);
-        }
-
-        // Reverse the path to get the correct order
-        java.util.Collections.reverse(pathNodes);
-
-        // Create and return the path
-        return new Path(pathNodes);
+        // Execute the search algorithm
+        return algorithm.search(src, dst);
     }
 }
-
