@@ -25,6 +25,8 @@ public class SearchStrategyFactory {
                 return new BFSStrategy(graph);
             case DFS:
                 return new DFSStrategy(graph);
+            case RANDOM_WALK:
+                return new RandomWalkStrategy(graph);
             default:
                 throw new IllegalArgumentException("Unsupported algorithm: " + algorithm);
         }
