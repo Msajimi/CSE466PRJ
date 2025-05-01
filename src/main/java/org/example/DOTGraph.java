@@ -35,6 +35,7 @@ import org.jgrapht.ext.JGraphXAdapter;
 public class DOTGraph {
     private Graph<String, DefaultEdge> graph;
     private Map<String, Map<String, String>> vertexAttributes;
+    private GraphSearchContext searchContext;
 
     /**
      * Constructor initializes an empty graph
@@ -42,6 +43,7 @@ public class DOTGraph {
     public DOTGraph() {
         graph = new DefaultDirectedGraph<>(DefaultEdge.class);
         vertexAttributes = new HashMap<>();
+        searchContext = new GraphSearchContext(graph);
     }
 
     /**
@@ -77,6 +79,9 @@ public class DOTGraph {
 
             // Import the graph
             importer.importGraph(graph, new StringReader(dotContent));
+
+            // Reinitialize search context with the new graph
+            searchContext = new GraphSearchContext(graph);
 
             return true;
         } catch (IOException | ImportException e) {
@@ -409,7 +414,9 @@ public class DOTGraph {
     }
 
     /**
-     * Finds a path from source node to destination node using the specified algorithm
+     * Finds a path from source node to destination node using the specified algorithm.
+     * This implementation uses the Strategy Pattern to select and execute the appropriate
+     * search algorithm.
      *
      * @param src   the source node label
      * @param dst   the destination node label
@@ -418,24 +425,9 @@ public class DOTGraph {
      * @throws IllegalArgumentException if either node doesn't exist or an invalid algorithm is specified
      */
     public Path graphSearch(String src, String dst, Algorithm algo) {
-        // Check if both nodes exist
-        if (!graph.containsVertex(src)) {
-            throw new IllegalArgumentException("Error: Source node '" + src + "' does not exist.");
-        }
+        // Validation of nodes will be done by the strategy implementation
 
-        if (!graph.containsVertex(dst)) {
-            throw new IllegalArgumentException("Error: Destination node '" + dst + "' does not exist.");
-        }
-
-        // If source and destination are the same, return a path with just this node
-        if (src.equals(dst)) {
-            return new Path(src);
-        }
-
-        // Create the appropriate algorithm using the factory
-        GraphSearchAlgorithm algorithm = SearchAlgorithmFactory.createAlgorithm(graph, algo);
-
-        // Execute the search algorithm
-        return algorithm.search(src, dst);
+        // Use the search context to find a path using the specified algorithm
+        return searchContext.findPath(src, dst, algo);
     }
 }
