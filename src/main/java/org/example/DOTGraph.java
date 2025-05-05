@@ -265,35 +265,8 @@ public class DOTGraph {
      * @return true if successful, false otherwise
      */
     public boolean outputGraphics(String path, String format) {
-        // Check if format is supported
-        if (!format.equalsIgnoreCase("png")) {
-            System.err.println("Unsupported format: " + format + ". Only 'png' is supported.");
-            return false;
-        }
-
-        try {
-            // Create a JGraphXAdapter for visualization
-            JGraphXAdapter<String, DefaultEdge> graphAdapter = new JGraphXAdapter<>(graph);
-
-            // Create a layout to organize the graph visually
-            mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
-            layout.execute(graphAdapter.getDefaultParent());
-
-            // Create a buffered image to render the graph
-            BufferedImage image = mxCellRenderer.createBufferedImage(
-                    graphAdapter, null, 2, Color.WHITE, true, null);
-
-            // Save the image
-            File imgFile = new File(path);
-            ImageIO.write(image, format, imgFile);
-
-            System.out.println("Graph image exported successfully to: " + path);
-            return true;
-        } catch (IOException e) {
-            System.err.println("Error exporting graph image: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        GraphVisualizer visualizer = new GraphVisualizer();
+        return visualizer.outputGraphics(graph, path, format);
     }
 
     /**
