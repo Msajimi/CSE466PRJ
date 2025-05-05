@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.DOTGraphException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -32,10 +33,12 @@ public class Feature3Test {
         dotGraph.addNode("DestNode");
 
         // Add an edge between them
-        boolean result = dotGraph.addEdge("SourceNode", "DestNode");
-
-        // Verify edge was added successfully
-        assertTrue(result, "Adding edge between existing nodes should succeed");
+        try {
+            dotGraph.addEdge("SourceNode", "DestNode");
+            // No exception means it succeeded
+        } catch (DOTGraphException e) {
+            fail("Adding edge between existing nodes should succeed, but got: " + e.getMessage());
+        }
 
         // Get the string representation
         String output = dotGraph.toString().replace("\r\n", "\n");
@@ -58,13 +61,14 @@ public class Feature3Test {
         dotGraph.addNode("NodeB");
 
         // Add an edge between them
-        dotGraph.addEdge("NodeA", "NodeB");
-
-        // Try to add the same edge again
-        boolean result = dotGraph.addEdge("NodeA", "NodeB");
-
-        // Verify adding duplicate edge failed
-        assertFalse(result, "Adding duplicate edge should fail");
+        try {
+            dotGraph.addEdge("NodeA", "NodeB");
+            assertThrows(DOTGraphException.class, () -> {
+                dotGraph.addEdge("NodeA", "NodeB");
+            }, "Adding duplicate edge should throw DOTGraphException");
+        } catch (DOTGraphException e) {
+            fail("First edge addition should succeed, but got: " + e.getMessage());
+        }
 
         // Get the string representation
         String output = dotGraph.toString().replace("\r\n", "\n");
@@ -86,10 +90,9 @@ public class Feature3Test {
         dotGraph.addNode("ExistingDest");
 
         // Try to add an edge with non-existent source
-        boolean result = dotGraph.addEdge("NonExistentSource", "ExistingDest");
-
-        // Verify adding edge failed
-        assertFalse(result, "Adding edge with non-existent source should fail");
+        assertThrows(DOTGraphException.class, () -> {
+            dotGraph.addEdge("NonExistentSource", "ExistingDest");
+        }, "Adding edge with non-existent source should throw DOTGraphException");
 
         // Get the string representation
         String output = dotGraph.toString().replace("\r\n", "\n");
@@ -111,10 +114,9 @@ public class Feature3Test {
         dotGraph.addNode("ExistingSource");
 
         // Try to add an edge with non-existent destination
-        boolean result = dotGraph.addEdge("ExistingSource", "NonExistentDest");
-
-        // Verify adding edge failed
-        assertFalse(result, "Adding edge with non-existent destination should fail");
+        assertThrows(DOTGraphException.class, () -> {
+            dotGraph.addEdge("ExistingSource", "NonExistentDest");
+        }, "Adding edge with non-existent destination should throw DOTGraphException");
 
         // Get the string representation
         String output = dotGraph.toString().replace("\r\n", "\n");
@@ -138,12 +140,13 @@ public class Feature3Test {
         dotGraph.addNode("Node3");
 
         // Add edges to create a path
-        boolean result1 = dotGraph.addEdge("Node1", "Node2");
-        boolean result2 = dotGraph.addEdge("Node2", "Node3");
-
-        // Verify both edges were added successfully
-        assertTrue(result1 && result2, "Both edges should be added successfully");
-
+        try {
+            dotGraph.addEdge("Node1", "Node2");
+            dotGraph.addEdge("Node2", "Node3");
+            // If we get here, both additions succeeded
+        } catch (DOTGraphException e) {
+            fail("Both edges should be added successfully, but got: " + e.getMessage());
+        }
         // Get the string representation
         String output = dotGraph.toString().replace("\r\n", "\n");
 

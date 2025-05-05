@@ -23,10 +23,14 @@ public class Feature5Test {
         graph.addNode("D");
 
         // Add some edges
-        graph.addEdge("A", "B");
-        graph.addEdge("B", "C");
-        graph.addEdge("C", "D");
-        graph.addEdge("D", "A");
+        try {
+            graph.addEdge("A", "B");
+            graph.addEdge("B", "C");
+            graph.addEdge("C", "D");
+            graph.addEdge("D", "A");
+        } catch (DOTGraphException e) {
+            fail("Failed to set up test: " + e.getMessage());
+        }
     }
 
     /**

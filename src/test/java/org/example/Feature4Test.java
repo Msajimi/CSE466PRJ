@@ -143,31 +143,31 @@ public class Feature4Test {
      */
     @Test
     public void testOutputComplexGraph() throws IOException {
-        // Read the test configuration file to create the complex graph
+// In testOutputComplexGraph() method, update the part where the graph is built
         List<String> configLines = Files.readAllLines(Paths.get("outputComplexGraphTest.txt"));
 
-        // Create a complex graph based on configuration
+// Create a complex graph based on configuration
         DOTGraph complexGraph = new DOTGraph();
 
-        // Process configuration lines to build the graph
-        for (String line : configLines) {
-            line = line.trim();
-            if (line.startsWith("addNode:")) {
-                String nodeName = line.substring("addNode:".length()).trim();
-                complexGraph.addNode(nodeName);
-            } else if (line.startsWith("addEdge:")) {
-                String edgeInfo = line.substring("addEdge:".length()).trim();
-                String[] parts = edgeInfo.split("->");
-                if (parts.length == 2) {
-                    complexGraph.addEdge(parts[0].trim(), parts[1].trim());
+// Process configuration lines to build the graph
+        try {
+            for (String line : configLines) {
+                line = line.trim();
+                if (line.startsWith("addNode:")) {
+                    String nodeName = line.substring("addNode:".length()).trim();
+                    complexGraph.addNode(nodeName);
+                } else if (line.startsWith("addEdge:")) {
+                    String edgeInfo = line.substring("addEdge:".length()).trim();
+                    String[] parts = edgeInfo.split("->");
+                    if (parts.length == 2) {
+                        complexGraph.addEdge(parts[0].trim(), parts[1].trim());
+                    }
                 }
             }
-        }
 
-        // Define output paths
-        String outputDotPath = "outputComplexGraphTest_output.dot";
+            // Define output paths
+            String outputDotPath = "outputComplexGraphTest_output.dot";
 
-        try {
             // Output to DOT file
             boolean dotResult = complexGraph.outputDOTGraph(outputDotPath);
             assertTrue(dotResult, "Exporting complex graph to DOT file should succeed");
@@ -193,6 +193,8 @@ public class Feature4Test {
                             "Output should contain: " + expectedLine);
                 }
             }
+        } catch (DOTGraphException e) {
+            fail("Error while building the graph: " + e.getMessage());
         } finally {
             // Clean up - delete output files
         }

@@ -29,12 +29,16 @@ public class GraphSearchTest {
         //    |         |
         //    v         v
         //    D -> E -> F
-        graph.addEdge("A", "B");
-        graph.addEdge("B", "C");
-        graph.addEdge("A", "D");
-        graph.addEdge("D", "E");
-        graph.addEdge("E", "F");
-        graph.addEdge("C", "F");
+        try {
+            graph.addEdge("A", "B");
+            graph.addEdge("B", "C");
+            graph.addEdge("A", "D");
+            graph.addEdge("D", "E");
+            graph.addEdge("E", "F");
+            graph.addEdge("C", "F");
+        } catch (DOTGraphException e) {
+            fail("Failed to set up test: " + e.getMessage());
+        }
     }
 
     /**
