@@ -54,25 +54,7 @@ public class DOTGraph {
      */
     public boolean parseGraph(String filepath) {
         try {
-            // Create a new importer for DOT format
-            DOTImporter<String, DefaultEdge> importer = new DOTImporter<>();
-
-            // Set up vertex provider (factory)
-            importer.setVertexFactory(id -> id);
-
-            // Create a map to store vertex attributes
-            vertexAttributes = new HashMap<>();
-
-            // Set up attribute consumers
-            importer.addVertexAttributeConsumer((pair, attribute) -> {
-                String vertex = pair.getFirst();
-                String attributeName = pair.getSecond();
-
-                if (!vertexAttributes.containsKey(vertex)) {
-                    vertexAttributes.put(vertex, new HashMap<>());
-                }
-                vertexAttributes.get(vertex).put(attributeName, attribute.toString());
-            });
+            DOTImporter<String, DefaultEdge> importer = configureDOTImporter();
 
             // Read the file content
             String dotContent = new String(Files.readAllBytes(Paths.get(filepath)));
@@ -89,6 +71,31 @@ public class DOTGraph {
             e.printStackTrace();
             return false;
         }
+    }
+
+    //Extracted methods
+    private DOTImporter<String, DefaultEdge> configureDOTImporter() {
+        // Create a new importer for DOT format
+        DOTImporter<String, DefaultEdge> importer = new DOTImporter<>();
+
+        // Set up vertex provider (factory)
+        importer.setVertexFactory(id -> id);
+
+        // Create a map to store vertex attributes
+        vertexAttributes = new HashMap<>();
+
+        // Set up attribute consumers
+        importer.addVertexAttributeConsumer((pair, attribute) -> {
+            String vertex = pair.getFirst();
+            String attributeName = pair.getSecond();
+
+            if (!vertexAttributes.containsKey(vertex)) {
+                vertexAttributes.put(vertex, new HashMap<>());
+            }
+            vertexAttributes.get(vertex).put(attributeName, attribute.toString());
+        });
+
+        return importer;
     }
 
     /**
