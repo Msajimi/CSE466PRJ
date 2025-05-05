@@ -94,12 +94,14 @@ public class Path {
         }
 
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < nodes.size(); i++) {
-            sb.append(nodes.get(i));
-            if (i < nodes.size() - 1) {
-                sb.append(" -> ");
-            }
+        String separator = "";
+
+        for (String node : nodes) {
+            sb.append(separator);
+            sb.append(node);
+            separator = " -> ";
         }
+
         return sb.toString();
     }
 }
