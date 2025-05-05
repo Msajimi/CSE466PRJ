@@ -104,4 +104,30 @@ public class Path {
 
         return sb.toString();
     }
+
+    public boolean contains(String node) {
+        return nodes.contains(node);
+    }
+
+    public boolean equalsPath(Path otherPath) {
+        if (otherPath == null) {
+            return false;
+        }
+
+        List<String> otherNodes = otherPath.getNodes();
+
+        if (nodes.size() != otherNodes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < nodes.size(); i++) {
+            if (!nodes.get(i).equals(otherNodes.get(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }
+
