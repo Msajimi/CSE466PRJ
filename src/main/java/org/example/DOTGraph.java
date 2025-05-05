@@ -35,6 +35,7 @@ import org.jgrapht.ext.JGraphXAdapter;
 public class DOTGraph {
     private Graph<String, DefaultEdge> graph;
     private Map<String, Map<String, String>> vertexAttributes;
+    private GraphSearchContext searchContext;
 
     /**
      * Constructor initializes an empty graph
@@ -42,6 +43,7 @@ public class DOTGraph {
     public DOTGraph() {
         graph = new DefaultDirectedGraph<>(DefaultEdge.class);
         vertexAttributes = new HashMap<>();
+        searchContext = new GraphSearchContext(graph);
     }
 
     /**
@@ -52,25 +54,7 @@ public class DOTGraph {
      */
     public boolean parseGraph(String filepath) {
         try {
-            // Create a new importer for DOT format
-            DOTImporter<String, DefaultEdge> importer = new DOTImporter<>();
-
-            // Set up vertex provider (factory)
-            importer.setVertexFactory(id -> id);
-
-            // Create a map to store vertex attributes
-            vertexAttributes = new HashMap<>();
-
-            // Set up attribute consumers
-            importer.addVertexAttributeConsumer((pair, attribute) -> {
-                String vertex = pair.getFirst();
-                String attributeName = pair.getSecond();
-
-                if (!vertexAttributes.containsKey(vertex)) {
-                    vertexAttributes.put(vertex, new HashMap<>());
-                }
-                vertexAttributes.get(vertex).put(attributeName, attribute.toString());
-            });
+            DOTImporter<String, DefaultEdge> importer = configureDOTImporter();
 
             // Read the file content
             String dotContent = new String(Files.readAllBytes(Paths.get(filepath)));
@@ -78,12 +62,40 @@ public class DOTGraph {
             // Import the graph
             importer.importGraph(graph, new StringReader(dotContent));
 
+            // Reinitialize search context with the new graph
+            searchContext = new GraphSearchContext(graph);
+
             return true;
         } catch (IOException | ImportException e) {
             System.err.println("Error parsing DOT file: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
+    }
+
+    //Extracted methods
+    private DOTImporter<String, DefaultEdge> configureDOTImporter() {
+        // Create a new importer for DOT format
+        DOTImporter<String, DefaultEdge> importer = new DOTImporter<>();
+
+        // Set up vertex provider (factory)
+        importer.setVertexFactory(id -> id);
+
+        // Create a map to store vertex attributes
+        vertexAttributes = new HashMap<>();
+
+        // Set up attribute consumers
+        importer.addVertexAttributeConsumer((pair, attribute) -> {
+            String vertex = pair.getFirst();
+            String attributeName = pair.getSecond();
+
+            if (!vertexAttributes.containsKey(vertex)) {
+                vertexAttributes.put(vertex, new HashMap<>());
+            }
+            vertexAttributes.get(vertex).put(attributeName, attribute.toString());
+        });
+
+        return importer;
     }
 
     /**
@@ -139,28 +151,24 @@ public class DOTGraph {
      * @param dstLabel the destination node label
      * @return true if the edge was added, false if it already exists or nodes don't exist
      */
-    public boolean addEdge(String srcLabel, String dstLabel) {
+    public void addEdge(String srcLabel, String dstLabel) throws DOTGraphException {
         // Check if both nodes exist
         if (!graph.containsVertex(srcLabel)) {
-            System.out.println("Error: Source node '" + srcLabel + "' does not exist. Add it first.");
-            return false;
+            throw new DOTGraphException("Source node '" + srcLabel + "' does not exist. Add it first.");
         }
 
         if (!graph.containsVertex(dstLabel)) {
-            System.out.println("Error: Destination node '" + dstLabel + "' does not exist. Add it first.");
-            return false;
+            throw new DOTGraphException("Destination node '" + dstLabel + "' does not exist. Add it first.");
         }
 
         // Check if the edge already exists
         if (graph.containsEdge(srcLabel, dstLabel)) {
-            System.out.println("Warning: Edge from '" + srcLabel + "' to '" + dstLabel + "' already exists.");
-            return false;
+            throw new DOTGraphException("Edge from '" + srcLabel + "' to '" + dstLabel + "' already exists.");
         }
 
         // Add the edge
         graph.addEdge(srcLabel, dstLabel);
         System.out.println("Added edge: " + srcLabel + " -> " + dstLabel);
-        return true;
     }
 
     /**
@@ -253,35 +261,8 @@ public class DOTGraph {
      * @return true if successful, false otherwise
      */
     public boolean outputGraphics(String path, String format) {
-        // Check if format is supported
-        if (!format.equalsIgnoreCase("png")) {
-            System.err.println("Unsupported format: " + format + ". Only 'png' is supported.");
-            return false;
-        }
-
-        try {
-            // Create a JGraphXAdapter for visualization
-            JGraphXAdapter<String, DefaultEdge> graphAdapter = new JGraphXAdapter<>(graph);
-
-            // Create a layout to organize the graph visually
-            mxIGraphLayout layout = new mxCircleLayout(graphAdapter);
-            layout.execute(graphAdapter.getDefaultParent());
-
-            // Create a buffered image to render the graph
-            BufferedImage image = mxCellRenderer.createBufferedImage(
-                    graphAdapter, null, 2, Color.WHITE, true, null);
-
-            // Save the image
-            File imgFile = new File(path);
-            ImageIO.write(image, format, imgFile);
-
-            System.out.println("Graph image exported successfully to: " + path);
-            return true;
-        } catch (IOException e) {
-            System.err.println("Error exporting graph image: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
+        GraphVisualizer visualizer = new GraphVisualizer();
+        return visualizer.outputGraphics(graph, path, format);
     }
 
     /**
@@ -409,15 +390,9 @@ public class DOTGraph {
     }
 
     /**
-     * Finds a path from source node to destination node using BFS algorithm
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     * @throws IllegalArgumentException if either node doesn't exist
-     */
-    /**
-     * Finds a path from source node to destination node using the specified algorithm
+     * Finds a path from source node to destination node using the specified algorithm.
+     * This implementation uses the Strategy Pattern to select and execute the appropriate
+     * search algorithm.
      *
      * @param src   the source node label
      * @param dst   the destination node label
@@ -426,164 +401,9 @@ public class DOTGraph {
      * @throws IllegalArgumentException if either node doesn't exist or an invalid algorithm is specified
      */
     public Path graphSearch(String src, String dst, Algorithm algo) {
-        // Check if both nodes exist
-        if (!graph.containsVertex(src)) {
-            throw new IllegalArgumentException("Error: Source node '" + src + "' does not exist.");
-        }
+        // Validation of nodes will be done by the strategy implementation
 
-        if (!graph.containsVertex(dst)) {
-            throw new IllegalArgumentException("Error: Destination node '" + dst + "' does not exist.");
-        }
-
-        // If source and destination are the same, return a path with just this node
-        if (src.equals(dst)) {
-            return new Path(src);
-        }
-
-        // Choose the appropriate algorithm
-        switch (algo) {
-            case BFS:
-                return bfsSearch(src, dst);
-            case DFS:
-                return dfsSearch(src, dst);
-            default:
-                throw new IllegalArgumentException("Invalid algorithm specified");
-        }
-    }
-
-    /**
-     * Performs a breadth-first search from source to destination
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     */
-    private Path bfsSearch(String src, String dst) {
-        // Queue for BFS traversal
-        java.util.Queue<String> queue = new java.util.LinkedList<>();
-
-        // Keep track of visited nodes
-        java.util.Set<String> visited = new java.util.HashSet<>();
-
-        // Keep track of parent nodes to reconstruct the path
-        java.util.Map<String, String> parentMap = new java.util.HashMap<>();
-
-        // Start BFS from the source node
-        queue.add(src);
-        visited.add(src);
-
-        while (!queue.isEmpty()) {
-            String current = queue.poll();
-
-            // Get all neighbors (outgoing edges from current node)
-            for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
-                String neighbor = graph.getEdgeTarget(edge);
-
-                // If we haven't visited this neighbor yet
-                if (!visited.contains(neighbor)) {
-                    // Record the parent
-                    parentMap.put(neighbor, current);
-
-                    // Check if we've reached the destination
-                    if (neighbor.equals(dst)) {
-                        // Reconstruct the path
-                        return reconstructPath(parentMap, src, dst);
-                    }
-
-                    // Add to queue and mark as visited
-                    visited.add(neighbor);
-                    queue.add(neighbor);
-                }
-            }
-        }
-
-        // If we get here, no path was found
-        return null;
-    }
-
-    /**
-     * Performs a depth-first search from source to destination
-     *
-     * @param src the source node label
-     * @param dst the destination node label
-     * @return a Path object representing the path if found, null otherwise
-     */
-    private Path dfsSearch(String src, String dst) {
-        // Set to keep track of visited nodes during DFS
-        java.util.Set<String> visited = new java.util.HashSet<>();
-
-        // Call the recursive DFS helper function
-        return dfsHelper(src, dst, visited, new Path(src));
-    }
-
-    /**
-     * Helper method for DFS traversal
-     *
-     * @param current current node being examined
-     * @param dst destination node we're looking for
-     * @param visited set of nodes already visited
-     * @param currentPath the path taken so far
-     * @return path to destination if found, null otherwise
-     */
-    private Path dfsHelper(String current, String dst, java.util.Set<String> visited, Path currentPath) {
-        // Mark the current node as visited
-        visited.add(current);
-
-        // If we've reached the destination, return the current path
-        if (current.equals(dst)) {
-            return currentPath;
-        }
-
-        // Explore all neighbors (outgoing edges from current node)
-        for (DefaultEdge edge : graph.outgoingEdgesOf(current)) {
-            String neighbor = graph.getEdgeTarget(edge);
-
-            // If we haven't visited this neighbor yet
-            if (!visited.contains(neighbor)) {
-                // Create a new path by adding this neighbor
-                Path newPath = new Path(currentPath);
-                newPath.addNode(neighbor);
-
-                // Recursively search from this neighbor
-                Path result = dfsHelper(neighbor, dst, visited, newPath);
-
-                // If a path is found, return it immediately
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-
-        // If we get here, no path was found from the current node
-        return null;
-    }
-
-    /**
-     * Helper method to reconstruct the path from the parent map
-     *
-     * @param parentMap a map of child -> parent relationships
-     * @param src the source node
-     * @param dst the destination node
-     * @return a Path object representing the path
-     */
-    private Path reconstructPath(java.util.Map<String, String> parentMap, String src, String dst) {
-        // Create a list to store the path in reverse order
-        java.util.List<String> pathNodes = new java.util.ArrayList<>();
-
-        // Start from the destination
-        String current = dst;
-
-        // Work backwards to the source
-        while (current != null) {
-            pathNodes.add(current);
-            current = parentMap.get(current);
-        }
-
-        // Reverse the path to get the correct order
-        java.util.Collections.reverse(pathNodes);
-
-        // Create and return the path
-        return new Path(pathNodes);
+        // Use the search context to find a path using the specified algorithm
+        return searchContext.findPath(src, dst, algo);
     }
 }
-

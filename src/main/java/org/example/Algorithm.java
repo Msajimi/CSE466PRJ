@@ -5,5 +5,6 @@ package org.example;
  */
 public enum Algorithm {
     BFS, // Breadth-First Search
-    DFS  // Depth-First Search
+    DFS,  // Depth-First Search
+    RANDOM_WALK
 }
