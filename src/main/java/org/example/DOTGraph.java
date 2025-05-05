@@ -151,28 +151,24 @@ public class DOTGraph {
      * @param dstLabel the destination node label
      * @return true if the edge was added, false if it already exists or nodes don't exist
      */
-    public boolean addEdge(String srcLabel, String dstLabel) {
+    public void addEdge(String srcLabel, String dstLabel) throws DOTGraphException {
         // Check if both nodes exist
         if (!graph.containsVertex(srcLabel)) {
-            System.out.println("Error: Source node '" + srcLabel + "' does not exist. Add it first.");
-            return false;
+            throw new DOTGraphException("Source node '" + srcLabel + "' does not exist. Add it first.");
         }
 
         if (!graph.containsVertex(dstLabel)) {
-            System.out.println("Error: Destination node '" + dstLabel + "' does not exist. Add it first.");
-            return false;
+            throw new DOTGraphException("Destination node '" + dstLabel + "' does not exist. Add it first.");
         }
 
         // Check if the edge already exists
         if (graph.containsEdge(srcLabel, dstLabel)) {
-            System.out.println("Warning: Edge from '" + srcLabel + "' to '" + dstLabel + "' already exists.");
-            return false;
+            throw new DOTGraphException("Edge from '" + srcLabel + "' to '" + dstLabel + "' already exists.");
         }
 
         // Add the edge
         graph.addEdge(srcLabel, dstLabel);
         System.out.println("Added edge: " + srcLabel + " -> " + dstLabel);
-        return true;
     }
 
     /**
